@@ -52,14 +52,21 @@ int main() {
   unsigned int vertAttr[2];
   glGenVertexArrays(2, vertAttr);
   glBindVertexArray(vertAttr[0]);
+  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[0]);
   // Give GL the start index, size, type, normalized?, stride, ptr
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0); // i think the tut assumes vao index = 0
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glEnableVertexAttribArray(0);
+  glBindVertexArray(vertAttr[1]);
+  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[1]);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
     glBindVertexArray(vertAttr[0]);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(vertAttr[1]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
