@@ -89,7 +89,8 @@ int main() {
   glUseProgram(shaderProgram);
   // Give GL the start index, size, type, normalized?, stride, ptr
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0); // i think the tut assumes vao index should be 0
+  glEnableVertexAttribArray(0); // i think the tut assumes vao index = 0
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
     glBindVertexArray(vao);
