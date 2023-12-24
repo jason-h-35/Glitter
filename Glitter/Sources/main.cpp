@@ -48,20 +48,23 @@ int main() {
   glViewport(0, 0, 800, 600);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   // make a triangle w/ verts
-  float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+  float vertices[] = {0.5f,  0.5f,  0.0f, 0.5f,  -0.5f, 0.0f,
+                      -0.5f, -0.5f, 0.0f, -0.5f, 0.5f,  0.0f};
+  unsigned int indices[] = {0, 1, 3, 1, 2, 3};
   // make 1 vertex buffer object.
   // VBO should be an array of ids to vertex buffer objects
   // But it can be just an int here b/c C++, I guess...
-  unsigned int VAO, VBO;
+  unsigned int VAO, EBO;
   // generate VAO and VBO
   glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
   // bind VAO to GL context
   glBindVertexArray(VAO);
   // bind VBO to GL context as array buffer
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   // ingest vertices into the array buffer bound to GL context (VBO)
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
   // create Vertex shader and compile it
   unsigned int vertexShader;
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
