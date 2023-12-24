@@ -29,10 +29,8 @@ bool programOK(unsigned int program);
 
 int main() {
   glfwInit();
-  // window hints are like a key-value setter
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  // core profile means reduce OpenGL down to the modern subset
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
   if (window == NULL) {
@@ -47,21 +45,14 @@ int main() {
   }
   glViewport(0, 0, 800, 600);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-  // make a triangle w/ verts
   float vertices[] = {0.5f,  0.5f,  0.0f, 0.5f,  -0.5f, 0.0f,
                       -0.5f, -0.5f, 0.0f, -0.5f, 0.5f,  0.0f};
   unsigned int indices[] = {0, 1, 3, 1, 2, 3};
-  // make 1 vertex buffer object.
-  // VBO should be an array of ids to vertex buffer objects
-  // But it can be just an int here b/c C++, I guess...
-  unsigned int VAO, EBO;
-  // generate VAO and VBO
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &EBO);
-  // bind VAO to GL context
-  glBindVertexArray(VAO);
-  // bind VBO to GL context as array buffer
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  unsigned int vao, ebo;
+  glGenVertexArrays(1, &vao);
+  glGenBuffers(1, &ebo);
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   // ingest vertices into the array buffer bound to GL context (VBO)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                GL_STATIC_DRAW);
@@ -79,38 +70,28 @@ int main() {
   fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
   glCompileShader(fragmentShader);
-  // check if it worked
   if (!shaderOK(fragmentShader)) {
     std::cout << "fragment shader failed to compile" << std::endl;
   }
-  // create shader program, attach V and F shader to it.
   unsigned int shaderProgram;
   shaderProgram = glCreateProgram();
   glAttachShader(shaderProgram, vertexShader);
   glAttachShader(shaderProgram, fragmentShader);
-  // Link program to GL context
   glLinkProgram(shaderProgram);
   if (!programOK(shaderProgram)) {
     std::cout << "shader program failed to compile" << std::endl;
   }
-  // Make it primary program in GL context
   glUseProgram(shaderProgram);
-  // Clean up.
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
   // Give GL the start index, size, type, normalized?, stride, ptr
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
-  // Make a VAO (vertex array object) which is like an array of
-  // (isVertexAttribArrayEnabled, glVertexAttribPointer, VBO)
   while (!glfwWindowShouldClose(window)) {
-    // input
     processInput(window);
     // rendering goes here
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    // check and call events and swap the buffers
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
