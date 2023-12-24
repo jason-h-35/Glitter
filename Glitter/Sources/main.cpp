@@ -4,11 +4,25 @@
 
 // Standard Headers
 #include <iostream>
+const char *orangeFragmentShaderSource =
+    "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\0";
+const char *yellowFragmentShaderSource =
+    "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+    "}\0";
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 unsigned int genVertexShader();
-unsigned int genFragmentShader();
+unsigned int genFragmentShader(const char *source);
 bool programOK(unsigned int program);
 
 int main() {
@@ -38,17 +52,27 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, vertBuf[1]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(verts2), verts2, GL_STATIC_DRAW);
   unsigned int vertexShader = genVertexShader();
-  unsigned int fragmentShader = genFragmentShader();
-  unsigned int shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-  if (!programOK(shaderProgram)) {
+
+  unsigned int orangeFragShader = genFragmentShader(orangeFragmentShaderSource);
+  unsigned int orangeProgram = glCreateProgram();
+  glAttachShader(orangeProgram, vertexShader);
+  glAttachShader(orangeProgram, orangeFragShader);
+  glLinkProgram(orangeProgram);
+  if (!programOK(orangeProgram)) {
     std::cout << "shader program failed to compile" << std::endl;
   }
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  glUseProgram(shaderProgram);
+  glDeleteShader(orangeFragShader);
+
+  unsigned int yellowFragShader = genFragmentShader(yellowFragmentShaderSource);
+  unsigned int yellowProgram = glCreateProgram();
+  glAttachShader(yellowProgram, vertexShader);
+  glAttachShader(yellowProgram, yellowFragShader);
+  glLinkProgram(yellowProgram);
+  if (!programOK(yellowProgram)) {
+    std::cout << "shader program failed to compile" << std::endl;
+  }
+  glDeleteShader(yellowFragShader);
+
   unsigned int vertAttr[2];
   glGenVertexArrays(2, vertAttr);
   glBindVertexArray(vertAttr[0]);
@@ -63,8 +87,10 @@ int main() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
+    glUseProgram(orangeProgram);
     glBindVertexArray(vertAttr[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glUseProgram(yellowProgram);
     glBindVertexArray(vertAttr[1]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
@@ -95,17 +121,10 @@ unsigned int genVertexShader() {
   return ref;
 }
 
-unsigned int genFragmentShader() {
-  const char *fragmentShaderSource =
-      "#version 330 core\n"
-      "out vec4 FragColor;\n"
-      "void main()\n"
-      "{\n"
-      "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-      "}\0";
+unsigned int genFragmentShader(const char *source) {
   unsigned int ref;
   ref = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(ref, 1, &fragmentShaderSource, NULL);
+  glShaderSource(ref, 1, &source, NULL);
   glCompileShader(ref);
   int ok;
   glGetShaderiv(ref, GL_COMPILE_STATUS, &ok);
