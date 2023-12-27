@@ -16,37 +16,23 @@ public:
     // 1. retrieve shader source code from file path
     std::vector<const char *> filePaths = {vertexPath, fragmentPath};
     std::vector<std::unique_ptr<std::ifstream>> fileStreams(2);
-    std::vector<std::string> codeStrings(2);
+    std::vector<std::unique_ptr<std::stringstream>> stringStreams(2);
     std::vector<const char *> codeCStrings(2);
     // ensure ifstream objects can throw exceptions:
-    for (auto &stream : fileStreams) {
-      if (stream && stream->is_open()) {
-        stream->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    for (size_t i = 0; i < fileStreams.size(); i++) {
+      if (fileStreams[i] && fileStreams[i]->is_open()) {
+        fileStreams[i]->exceptions(std::ifstream::failbit |
+                                   std::ifstream::badbit);
         try {
-          stream->open
+          fileStreams[i]->open(vertexPath);
+          *stringStreams[i] << fileStreams[i]->rdbuf();
+          fileStreams[i]->close();
         } catch (std::ifstream::failure e) {
           std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK" << std::endl;
         }
+        codeCStrings[i] = stringStreams[i]->str().c_str();
       }
     }
-    try {
-      vFileStream.open(vertexPath);
-      fFileStream.open(fragmentPath);
-      std::stringstream vShaderStream, fShaderStream;
-      // read ifstreams into stringsteams
-      vShaderStream << vFileStream.rdbuf();
-      fShaderStream << fFileStream.rdbuf();
-      // close ifstreams
-      vFileStream.close();
-      fFileStream.close();
-      // convert stringstream to string
-      vertexCodeString = vShaderStream.str();
-      fragmentCodeString = fShaderStream.str();
-    } catch (std::ifstream::failure e) {
-      std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK" << std::endl;
-    }
-    const char *vShaderCode = vertexCodeString.c_str();
-    const char *fShaderCode = fragmentCodeString.c_str();
     // 2. compile shaders
     unsigned int vertex, fragment;
     int success;
