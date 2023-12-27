@@ -13,10 +13,11 @@ public:
   unsigned int ID;
   // constructor reads and builds shader
   Shader(const char *vertexPath, const char *fragmentPath) {
+    unsigned int numPaths = 2;
     // 1. retrieve shader source code from file path
     std::vector<const char *> filePaths = {vertexPath, fragmentPath};
-    std::vector<std::unique_ptr<std::ifstream>> fileStreams(2);
-    std::vector<std::unique_ptr<std::stringstream>> stringStreams(2);
+    std::vector<std::unique_ptr<std::ifstream>> fileStreams(numPaths);
+    std::vector<std::unique_ptr<std::stringstream>> stringStreams(numPaths);
     std::vector<const char *> codeCStrings(2);
     // ensure ifstream objects can throw exceptions:
     for (size_t i = 0; i < fileStreams.size(); i++) {
@@ -28,20 +29,43 @@ public:
           *stringStreams[i] << fileStreams[i]->rdbuf();
           fileStreams[i]->close();
         } catch (std::ifstream::failure e) {
-          std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK" << std::endl;
+          std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK\n" << std::endl;
         }
         codeCStrings[i] = stringStreams[i]->str().c_str();
       }
     }
     // 2. compile shaders
-    unsigned int vertex, fragment;
-    int success;
-    char infoLog[512];
-
-    // vertexShader
-    vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vShaderCode, NULL);
-    glCompileShader(vertex);
+    std::vector<unsigned int> glRefs(numPaths);
+    std::vector<GLenum> shaderTypes = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+    int ok;
+    const size_t logMaxLen = 512;
+    char infoLog[logMaxLen];
+    for (size_t i = 0; i < glRefs.size(); i++) {
+      glRefs[i] = glCreateShader(shaderTypes[i]);
+      glShaderSource(glRefs[i], 1, &codeCStrings[i], nullptr);
+      glCompileShader(glRefs[i]);
+      glGetShaderiv(glRefs[i], GL_COMPILE_STATUS, &ok);
+      if (!ok) {
+        glGetShaderInfoLog(glRefs[i], logMaxLen, nullptr, infoLog);
+        std::cerr << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n"
+                  << infoLog << std::endl;
+      }
+    }
+    // 3. shader program
+    ID = glCreateProgram();
+    for (auto glRef : glRefs) {
+      glAttachShader(ID, glRef);
+    }
+    glLinkProgram(ID);
+    glGetProgramiv(ID, GL_LINK_STATUS, &ok);
+    if (!ok) {
+      glGetProgramInfoLog(ID, logMaxLen, nullptr, infoLog);
+      std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+                << infoLog << std::endl;
+    }
+    for (auto glRef : glRefs) {
+      glDeleteShader(glRef);
+    }
   }
   // use/activate the shader
   void use();
