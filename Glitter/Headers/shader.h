@@ -70,7 +70,9 @@ public:
   // use/activate the shader
   void use() { glUseProgram(ID); }
   // utility uniform functions
-  void setBool(const std::string &name, bool value) const;
+  void setBool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+  }
   void setInt(const std::string &name, int value) const;
   void setFloat(const std::string &name, float value) const;
 };
