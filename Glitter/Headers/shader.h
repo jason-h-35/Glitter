@@ -68,7 +68,7 @@ public:
     }
   }
   // use/activate the shader
-  void use();
+  void use() { glUseProgram(ID); }
   // utility uniform functions
   void setBool(const std::string &name, bool value) const;
   void setInt(const std::string &name, int value) const;
