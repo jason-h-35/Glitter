@@ -32,7 +32,9 @@ int main() {
   } else {
     std::cout << "GLAD initialized" << std::endl;
   }
-  Shader ourShader("shader.vert", "shader.frag");
+  Shader ourShader("/home/jason/code/Glitter/Glitter/Shaders/shader.vert",
+                   "/home/jason/code/Glitter/Glitter/Shaders/shader.frag");
+  std::cout << "Shader created" << std::endl;
   glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
   // clang-format off
   float verts[] = {
