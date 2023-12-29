@@ -19,6 +19,7 @@ public:
     std::vector<std::unique_ptr<std::ifstream>> fileStreams(numPaths);
     std::vector<std::unique_ptr<std::stringstream>> stringStreams(numPaths);
     std::vector<const char *> codeCStrings(2);
+    std::cout << "Vecs allocated" << std::endl;
     // ensure ifstream objects can throw exceptions:
     for (size_t i = 0; i < fileStreams.size(); i++) {
       if (fileStreams[i] && fileStreams[i]->is_open()) {
@@ -34,6 +35,7 @@ public:
         codeCStrings[i] = stringStreams[i]->str().c_str();
       }
     }
+    std::cout << "Retrieved shader code from file path" << std::endl;
     // 2. compile shaders
     std::vector<unsigned int> glRefs(numPaths);
     std::vector<GLenum> shaderTypes = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
@@ -51,6 +53,7 @@ public:
                   << infoLog << std::endl;
       }
     }
+    std::cout << "Compiled shaders" << std::endl;
     // 3. shader program
     ID = glCreateProgram();
     for (auto glRef : glRefs) {
