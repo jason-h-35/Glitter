@@ -5,6 +5,14 @@
 
 #include <iostream>
 
+// TODO: Triangle flashes between green and black
+// TODO: Triangle with Red, Green, and Blue corners smoothly interpolating
+// TODO: Ex 2: horizontal offset via uniform
+// TODO: Ex 3:
+//            - output vertex position to fragment shader using `out`
+//            - set fragment's color equal to this vertex position
+//            - why is the bottom-left side of triangle black?
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
