@@ -31,38 +31,33 @@ int main() {
   Shader ourShader("shader.vert", "shader.frag");
   glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
   // clang-format off
-  float vertices[] = {
+  float verts[] = {
     // positions          // colors
      0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, // bottom right
     -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, // bottom left
      0.0f, 0.5f,  0.0f,   0.0f, 0.0f, 1.0f  // top
   };
   // clang-format on
-  unsigned int vertBuf[2];
-  glGenBuffers(2, vertBuf);
-  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[0]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(verts1), verts1, GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[1]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(verts2), verts2, GL_STATIC_DRAW);
-  unsigned int vertAttr[2];
-  glGenVertexArrays(2, vertAttr);
-  glBindVertexArray(vertAttr[0]);
-  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[0]);
+  unsigned int VBO[1];
+  glGenBuffers(1, VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+  unsigned int VAO[1];
+  glGenVertexArrays(1, VAO);
+  glBindVertexArray(VAO[0]);
   // Give GL the start index, size, type, normalized?, stride, ptr
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
-  glBindVertexArray(vertAttr[1]);
-  glBindBuffer(GL_ARRAY_BUFFER, vertBuf[1]);
+  glBindVertexArray(VAO[1]);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
-    glUseProgram(program);
-    glBindVertexArray(vertAttr[0]);
+    glBindVertexArray(VAO[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glUseProgram(yellowProgram);
-    glBindVertexArray(vertAttr[1]);
+    glBindVertexArray(VAO[1]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
     glfwPollEvents();
