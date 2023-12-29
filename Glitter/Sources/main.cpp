@@ -38,30 +38,34 @@ int main() {
      0.0f, 0.5f,  0.0f,   0.0f, 0.0f, 1.0f  // top
   };
   // clang-format on
-  unsigned int VBO[1];
+  unsigned int VBO[1], VAO[1];
   glGenBuffers(1, VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-  unsigned int VAO[1];
   glGenVertexArrays(1, VAO);
   glBindVertexArray(VAO[0]);
   // Give GL the start index, size, type, normalized?, stride, ptr
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  // position vertex attrib on 0
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
-  glBindVertexArray(VAO[1]);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
+  // color vertex attrib on 1
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(1);
+  glBindVertexArray(0);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
+    // render
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ourShader.use();
     glBindVertexArray(VAO[0]);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(VAO[1]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  glDeleteVertexArrays(1, &VAO[0]);
+  glDeleteBuffers(1, &VBO[0]);
   glfwTerminate();
   return 0;
 }
