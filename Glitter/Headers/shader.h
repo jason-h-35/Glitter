@@ -16,25 +16,23 @@ public:
     unsigned int numPaths = 2;
     // 1. retrieve shader source code from file path
     std::vector<const char *> filePaths = {vertexPath, fragmentPath};
-    std::vector<std::unique_ptr<std::ifstream>> fileStreams(numPaths);
-    std::vector<std::unique_ptr<std::stringstream>> stringStreams(numPaths);
-    std::vector<const char *> codeCStrings(2);
+    std::vector<std::string> codeStrings(numPaths);
     std::cout << "Vecs allocated" << std::endl;
     // ensure ifstream objects can throw exceptions:
-    for (size_t i = 0; i < fileStreams.size(); i++) {
-      if (fileStreams[i] && fileStreams[i]->is_open()) {
-        fileStreams[i]->exceptions(std::ifstream::failbit |
-                                   std::ifstream::badbit);
-        try {
-          fileStreams[i]->open(vertexPath);
-          *stringStreams[i] << fileStreams[i]->rdbuf();
-          fileStreams[i]->close();
-        } catch (std::ifstream::failure e) {
-          std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK\n" << std::endl;
-        }
-        codeCStrings[i] = stringStreams[i]->str().c_str();
+    for (size_t i = 0; i < filePaths.size(); i++) {
+      std::ifstream fileStream;
+      std::stringstream stringStream;
+      fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+      try {
+        fileStream.open(filePaths[i]);
+        stringStream << fileStream.rdbuf();
+        fileStream.close();
+      } catch (std::ifstream::failure e) {
+        std::cerr << "ERROR::SHADER::FILE_READ_NOT_OK\n" << std::endl;
       }
+      codeStrings[i] = stringStream.str();
     }
+
     std::cout << "Retrieved shader code from file path" << std::endl;
     // 2. compile shaders
     std::vector<unsigned int> glRefs(numPaths);
@@ -42,15 +40,23 @@ public:
     int ok;
     const size_t logMaxLen = 512;
     char infoLog[logMaxLen];
+    std::cout << "1" << std::endl;
     for (size_t i = 0; i < glRefs.size(); i++) {
+      std::cout << "2" << std::endl;
       glRefs[i] = glCreateShader(shaderTypes[i]);
-      glShaderSource(glRefs[i], 1, &codeCStrings[i], nullptr);
+      std::cout << "3" << std::endl;
+      std::cout << codeStrings[i] << std::endl;
+      const char *source = codeStrings[i].c_str();
+      glShaderSource(glRefs[i], 1, &source, nullptr);
+      std::cout << "4" << std::endl;
       glCompileShader(glRefs[i]);
+      std::cout << "5" << std::endl;
       glGetShaderiv(glRefs[i], GL_COMPILE_STATUS, &ok);
       if (!ok) {
         glGetShaderInfoLog(glRefs[i], logMaxLen, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        std::cerr << "Shader compile failed" << infoLog << std::endl;
+      } else {
+        std::cout << "Compiled shader" << std::endl;
       }
     }
     std::cout << "Compiled shaders" << std::endl;
