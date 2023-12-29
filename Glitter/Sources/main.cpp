@@ -21,12 +21,16 @@ int main() {
     std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
     return -1;
+  } else {
+    std::cout << "GLFW window created" << std::endl;
   }
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cout << "Failed to initialize GLAD" << std::endl;
     return -1;
+  } else {
+    std::cout << "GLAD initialized" << std::endl;
   }
   Shader ourShader("shader.vert", "shader.frag");
   glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
