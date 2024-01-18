@@ -16,7 +16,6 @@ public:
     // 1. retrieve shader source code from file path
     std::vector<const char *> filePaths = {vertexPath, fragmentPath};
     std::vector<std::string> codeStrings(numPaths);
-    std::cout << "Vecs allocated" << std::endl;
     // ensure ifstream objects can throw exceptions:
     for (size_t i = 0; i < filePaths.size(); i++) {
       std::ifstream fileStream;
@@ -31,34 +30,25 @@ public:
       }
       codeStrings[i] = stringStream.str();
     }
-
-    std::cout << "Retrieved shader code from file path" << std::endl;
     // 2. compile shaders
     std::vector<unsigned int> glRefs(numPaths);
     std::vector<GLenum> shaderTypes = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
     int ok;
     const size_t logMaxLen = 512;
     char infoLog[logMaxLen];
-    std::cout << "1" << std::endl;
     for (size_t i = 0; i < glRefs.size(); i++) {
-      std::cout << "2" << std::endl;
       glRefs[i] = glCreateShader(shaderTypes[i]);
-      std::cout << "3" << std::endl;
       std::cout << codeStrings[i] << std::endl;
       const char *source = codeStrings[i].c_str();
       glShaderSource(glRefs[i], 1, &source, nullptr);
-      std::cout << "4" << std::endl;
       glCompileShader(glRefs[i]);
-      std::cout << "5" << std::endl;
       glGetShaderiv(glRefs[i], GL_COMPILE_STATUS, &ok);
       if (!ok) {
         glGetShaderInfoLog(glRefs[i], logMaxLen, nullptr, infoLog);
         std::cerr << "Shader compile failed" << infoLog << std::endl;
       } else {
-        std::cout << "Compiled shader" << std::endl;
       }
     }
-    std::cout << "Compiled shaders" << std::endl;
     // 3. shader program
     ID = glCreateProgram();
     for (auto glRef : glRefs) {
