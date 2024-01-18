@@ -1,11 +1,11 @@
 #include <GLFW/glfw3.h>
+#include <cmath>
 #include <cstring>
 #include <glad/glad.h>
 #include <shader.h>
 
 #include <iostream>
 
-// TODO: Triangle flashes between green and black
 // TODO: Triangle with Red, Green, and Blue corners smoothly interpolating
 // TODO: Ex 2: horizontal offset via uniform
 // TODO: Ex 3:
@@ -36,8 +36,8 @@ int main() {
     std::cout << "Failed to initialize GLAD" << std::endl;
     return -1;
   }
-  Shader ourShader("/home/jason/code/Glitter/Glitter/Shaders/shader.vert",
-                   "/home/jason/code/Glitter/Glitter/Shaders/shader.frag");
+  Shader shader("/home/jason/code/Glitter/Glitter/Shaders/shader.vert",
+                "/home/jason/code/Glitter/Glitter/Shaders/shader.frag");
   std::cout << "Shader created" << std::endl;
   glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
   // clang-format off
@@ -65,10 +65,16 @@ int main() {
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
+    // populate uniform
+    float timeValue = glfwGetTime();
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    int vertexColorLocation = glGetUniformLocation(shader.ID, "ourColor");
+    shader.use();
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    ourShader.use();
+    shader.use();
     glBindVertexArray(VAO[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
