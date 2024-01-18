@@ -1,4 +1,5 @@
 #include <GLFW/glfw3.h>
+#include <cmath>
 #include <cstring>
 #include <glad/glad.h>
 #include <shader.h>
@@ -64,11 +65,20 @@ int main() {
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
-    shader.use();
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     shader.use();
+    // update uniform
+    float time = glfwGetTime();
+    float xOffset = sin(time) / 2.0f;
+    float red = sin(time - M_PI / 2.0f) / 2.0f + 0.5f;
+    float green = sin(time) / 2.0f + 0.5f;
+    float blue = sin(time + M_PI / 2.0f) / 2.0f + 0.5f;
+    int xOffsetRef = glGetUniformLocation(shader.ID, "xOffset");
+    int colorValRef = glGetUniformLocation(shader.ID, "colorVal");
+    glUniform3f(xOffsetRef, xOffset, 0.0f, 0.0f);
+    glUniform3f(colorValRef, red, green, blue);
     glBindVertexArray(VAO[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glfwSwapBuffers(window);
