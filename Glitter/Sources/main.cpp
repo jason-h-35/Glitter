@@ -1,12 +1,10 @@
 #include <GLFW/glfw3.h>
-#include <cmath>
 #include <cstring>
 #include <glad/glad.h>
 #include <shader.h>
 
 #include <iostream>
 
-// TODO: Triangle with Red, Green, and Blue corners smoothly interpolating
 // TODO: Ex 2: horizontal offset via uniform
 // TODO: Ex 3:
 //            - output vertex position to fragment shader using `out`
@@ -59,18 +57,14 @@ int main() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
   // color vertex attrib on 1
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
   glBindVertexArray(0);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
-    // populate uniform
-    float timeValue = glfwGetTime();
-    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-    int vertexColorLocation = glGetUniformLocation(shader.ID, "ourColor");
     shader.use();
-    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
